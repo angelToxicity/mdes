@@ -1,0 +1,36 @@
+name: Build DOCX Artifact from Markdown
+
+on:
+  push:
+    paths:
+      - "docs/Guia-Integracion-Tokenizacion.md"
+      - ".github/workflows/build-docx-artifact.yml"
+  workflow_dispatch:
+
+jobs:
+  build-docx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+
+      - name: Convert Markdown to DOCX
+        run: |
+          mkdir -p docs
+          pandoc docs/Guia-Integracion-Tokenizacion.md \
+            -o docs/Guia-Integracion-Tokenizacion.docx \
+            --from gfm \
+            --toc \
+            --metadata=title:"Guía de Integración — APIs de Tokenización"
+
+      - name: Upload DOCX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Guia-Integracion-Tokenizacion-docx
+          path: docs/Guia-Integracion-Tokenizacion.docx
+          if-no-files-found: error
+          retention-days: 14
